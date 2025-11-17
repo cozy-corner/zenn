@@ -3,7 +3,7 @@ rules:
   - expected: JavaScript
     patterns:
       - Javascript
-      - /java script/i
+      - javascript
   - expected: GitHub
     patterns:
       - Github
