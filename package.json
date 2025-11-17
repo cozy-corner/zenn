@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "textlint articles/**/*.md books/**/*.md",
+    "lint:fix": "textlint --fix articles/**/*.md books/**/*.md"
   },
   "repository": {
     "type": "git",
@@ -19,5 +21,12 @@
   "description": "",
   "dependencies": {
     "zenn-cli": "^0.2.10"
+  },
+  "devDependencies": {
+    "textlint": "^14.0.0",
+    "textlint-rule-preset-ja-technical-writing": "^10.0.0",
+    "textlint-rule-prh": "^6.0.0",
+    "textlint-rule-preset-ja-spacing": "^2.3.0",
+    "textlint-rule-spellcheck-tech-word": "^5.0.0"
   }
 }

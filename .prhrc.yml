@@ -1,0 +1,21 @@
+version: 1
+rules:
+  - expected: JavaScript
+    patterns:
+      - Javascript
+      - /java script/i
+  - expected: GitHub
+    patterns:
+      - Github
+  - expected: TypeScript
+    patterns:
+      - Typescript
+  - expected: VS Code
+    patterns:
+      - VSCode
+  - expected: macOS
+    patterns:
+      - MacOS
+  - expected: Node.js
+    patterns:
+      - NodeJS
