@@ -1,0 +1,28 @@
+{
+  "filters": {},
+  "rules": {
+    "preset-ja-technical-writing": {
+      "sentence-length": {
+        "max": 120
+      },
+      "max-kanji-continuous-len": {
+        "max": 6,
+        "allow": []
+      },
+      "no-mix-dearu-desumasu": {
+        "preferInHeader": "",
+        "preferInBody": "ですます",
+        "preferInList": "である"
+      }
+    },
+    "preset-ja-spacing": {
+      "ja-space-between-half-and-full-width": {
+        "space": "always"
+      }
+    },
+    "prh": {
+      "rulePaths": ["./.prhrc.yml"]
+    },
+    "spellcheck-tech-word": true
+  }
+}
