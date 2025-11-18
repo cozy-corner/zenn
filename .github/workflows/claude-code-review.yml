@@ -61,9 +61,9 @@ jobs:
             - 根拠のない主張
 
             改善が必要な箇所を具体的に指摘してください。
-            `gh pr comment`を使ってPRにコメントを残してください。
+            `gh pr review`を使って該当行にインラインコメントを投稿するか、`gh pr comment`でPR全体へのコメントを投稿してください。
 
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://docs.claude.com/en/docs/claude-code/cli-reference for available options
-          claude_args: '--allowed-tools "Bash(gh issue view:*),Bash(gh search:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)"'
+          claude_args: '--allowed-tools "Bash(gh issue view:*),Bash(gh search:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr review:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)"'
 
