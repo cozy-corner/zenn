@@ -3,12 +3,9 @@ name: Claude Code Review
 on:
   pull_request:
     types: [opened, synchronize]
-    # Optional: Only run on specific file changes
-    # paths:
-    #   - "src/**/*.ts"
-    #   - "src/**/*.tsx"
-    #   - "src/**/*.js"
-    #   - "src/**/*.jsx"
+    paths:
+      - "articles/**/*.md"
+      - "books/**/*.md"
 
 jobs:
   claude-review:
@@ -40,16 +37,22 @@ jobs:
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
 
-            Please review this pull request and provide feedback on:
-            - Code quality and best practices
-            - Potential bugs or issues
-            - Performance considerations
-            - Security concerns
-            - Test coverage
+            以下の原則に従って技術記事をレビューしてください:
 
-            Use the repository's CLAUDE.md for guidance on style and conventions. Be constructive and helpful in your feedback.
+            【技術文書の3原則】
+            1. 読み手にとって明確か（専門用語の説明、前提知識の確認）
+            2. 構成が論理的か（要点が冒頭にあるか、全体像が示されているか）
+            3. 明確に伝わる書き方か（具体的、短文、能動態、肯定文）
 
-            Use `gh pr comment` with your Bash tool to leave your review as a comment on the PR.
+            【重点チェック項目】
+            - 誇張表現や断定表現の過度な使用
+            - 曖昧な表現（「など」「かもしれない」の多用）
+            - 受動態の過度な使用
+            - 長すぎる文（一文80字超）
+            - 根拠のない主張
+
+            改善が必要な箇所を具体的に指摘してください。
+            `gh pr comment`を使ってPRにコメントを残してください。
 
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://docs.claude.com/en/docs/claude-code/cli-reference for available options
