@@ -78,9 +78,17 @@ jobs:
             ## レビューの投稿方法
 
             **重要：**
-            1. すべてのインラインコメントを`gh pr review`コマンド1回でまとめて投稿してください
-            2. 各コメントの冒頭に、該当するチェック項目を【】で明記してください（例：【おかしな重なり】【一文が長すぎる】【前提知識が不明確】）
-            3. レビュー全体のサマリーは`gh pr comment`で別途投稿してください
+            1. **インラインコメントの投稿**: `gh pr review`コマンドを使って、該当行に対するコメントを投稿してください
+               - 形式: `gh pr review <PR番号> --comment -b "レビューサマリー"`
+               - 各コメントは`-c`オプションで指定: `-c "ファイルパス:行番号:コメント本文"`
+               - 例: `gh pr review 123 -c "articles/example.md:42:【おかしな重なり】パフォーマンスのパフォーマンス→パフォーマンス" -c "articles/example.md:56:【一文が長すぎる】115文字あります..." -b "レビュー完了"`
+
+            2. **観点の明記**: 各インラインコメントの冒頭に、該当するチェック項目を【】で明記してください
+               - 例: 【おかしな重なり】【一文が長すぎる】【前提知識が不明確】【並列の乱れ】【根拠のない主張】など
+
+            3. **総括コメント**: レビュー全体のサマリーは、上記の`gh pr review`の`-b`オプションで簡潔に記述するか、別途`gh pr comment`で投稿してください
+
+            **注意**: インラインコメントは必ず`gh pr review`を使い、通常のコメント（`gh pr comment`）は使わないでください
 
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://docs.claude.com/en/docs/claude-code/cli-reference for available options
