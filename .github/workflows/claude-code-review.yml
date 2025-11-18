@@ -75,8 +75,12 @@ jobs:
             - わかりにくい説明：複雑すぎる文や説明を分割・整理できないか
             - 情報の欠落：読者が理解するために必要な情報が抜けていないか
 
-            改善が必要な箇所を具体的に指摘してください。
-            `gh pr review`を使って該当行にインラインコメントを投稿するか、`gh pr comment`でPR全体へのコメントを投稿してください。
+            ## レビューの投稿方法
+
+            **重要：**
+            1. すべてのインラインコメントを`gh pr review`コマンド1回でまとめて投稿してください
+            2. 各コメントの冒頭に、該当するチェック項目を【】で明記してください（例：【おかしな重なり】【一文が長すぎる】【前提知識が不明確】）
+            3. レビュー全体のサマリーは`gh pr comment`で別途投稿してください
 
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://docs.claude.com/en/docs/claude-code/cli-reference for available options
