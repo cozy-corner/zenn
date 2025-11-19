@@ -85,45 +85,48 @@ jobs:
                - 各ファイルの変更箇所(hunk)と行番号を把握
 
             2. **インラインコメントの投稿**:
-               GitHub API を使用してインラインコメントを投稿します:
+               GitHub API を使用して、`line`と`side`パラメータでインラインコメントを投稿します:
                ```bash
                gh api repos/$REPO/pulls/<PR番号>/reviews \
-                 -F commit_id="<最新のcommit ID>" \
-                 -F event="COMMENT" \
-                 -F body="レビュー完了しました" \
-                 -F comments='[
-                   {"path":"articles/example.md","position":5,"body":"【おかしな重なり】パフォーマンスのパフォーマンス→パフォーマンス"},
-                   {"path":"articles/example.md","position":12,"body":"【一文が長すぎる】115文字あります..."}
-                 ]'
+                 --method POST \
+                 --field commit_id="<最新のcommit ID>" \
+                 --field event="COMMENT" \
+                 --field body="レビュー完了しました" \
+                 --field 'comments[][path]=articles/example.md' \
+                 --field 'comments[][line]=14' \
+                 --field 'comments[][side]=RIGHT' \
+                 --field 'comments[][body]=【一文が長すぎる】この文は135文字あります...'
                ```
 
-            3. **position の計算方法**:
-               - **新規ファイルの場合**: ファイルの行番号 = position (例: ファイル14行目 → position 14)
-               - **既存ファイルの変更の場合**: GitHub API仕様に従って正確にカウント
-                 - `position` は **"@@" hunkヘッダーの直後の行から** 数えます
-                 - diff header行 (diff --git, index, ---, +++ など) は**カウントしません**
-                 - "@@" hunkヘッダー行自体も**カウントしません**
-                 - "@@"の**次の行**が position 1 です
-                 - context行、削除行(-)、追加行(+) すべてカウントします
-                 - コメントできるのは "+" で始まる追加行のみです
+            3. **line と side パラメータの使い方**:
+               **重要**: `position`パラメータは非推奨です。代わりに`line`と`side`を使います。
 
-                 **例:** 以下のdiffの場合
-                 ```
-                 @@ -6,31 +6,31 @@ topics:    ← hunkヘッダー(カウントしない)
-                    - "postgresql"            ← position 1
-                    - "sql"                   ← position 2
-                  -published: true            ← position 4 (削除行もカウント)
-                  +published: false           ← position 6 (コメント可能)
-                    ---                       ← position 7
-                    ## はじめに                ← position 9
-                  -データベース設計において...  ← position 11 (削除行)
-                  +データベース設計において...  ← position 12 (ここにコメントする場合)
-                 ```
+               - **`line`**: ファイルの実際の行番号(1から始まる)
+               - **`side`**: どちらのバージョンか
+                 - `RIGHT`: 新しいバージョン(変更後・追加された行)
+                 - `LEFT`: 古いバージョン(変更前・削除された行)
 
-                 position 12にコメントする場合の正しいコマンド:
-                 ```
-                 -F 'comments[][position]=12'
-                 ```
+               **例1**: 変更後のファイルの14行目にコメント
+               ```bash
+               --field 'comments[][path]=articles/184bf3b88c9f2a.md'
+               --field 'comments[][line]=14'
+               --field 'comments[][side]=RIGHT'
+               --field 'comments[][body]=【一文が長すぎる】...'
+               ```
+
+               **例2**: 複数行にまたがるコメント(14行目から16行目)
+               ```bash
+               --field 'comments[][path]=articles/example.md'
+               --field 'comments[][start_line]=14'
+               --field 'comments[][line]=16'
+               --field 'comments[][side]=RIGHT'
+               --field 'comments[][body]=この段落全体を見直してください'
+               ```
+
+               **注意**:
+               - 新規ファイルの場合も既存ファイルの場合も、ファイルの行番号をそのまま使います
+               - diffを解析してpositionを計算する必要はありません
+               - コメントは変更された行(`+`で追加された行)にのみ投稿できます
 
             4. **観点の明記**: 各コメントの冒頭に、該当するチェック項目を【】で明記
                - 例: 【おかしな重なり】【一文が長すぎる】【前提知識が不明確】【並列の乱れ】【根拠のない主張】
