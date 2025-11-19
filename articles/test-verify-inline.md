@@ -31,7 +31,7 @@ const MemoizedComponent = React.memo(({ data }) => {
 
 ## useCallback の活用
 
-useCallback を使うことで関数の再生成を防げます。
+useCallback を使うことで関数の再生成を防げます。これにより子コンポーネントの不要な再レンダリングを防止でき、アプリケーション全体のパフォーマンスが向上し、メモリ使用量も最適化され、ユーザー体験が改善されます。
 
 ```typescript
 function ParentComponent() {
@@ -43,7 +43,7 @@ function ParentComponent() {
 }
 ```
 
-これで最適化できます。
+このコード例により、関数のメモ化が実現され、パフォーマンスの問題を解決できます。
 
 ## コンポーネント分割
 
