@@ -78,21 +78,35 @@ jobs:
 
             ## レビューの投稿方法
 
-            **重要：**
-            1. **インラインコメントの投稿**: `gh pr review`コマンドを使って、該当行に対するコメントを投稿してください
-               - 形式: `gh pr review <PR番号> --comment -b "レビューサマリー"`
-               - 各コメントは`-c`オプションで指定: `-c "ファイルパス:行番号:コメント本文"`
-               - 例: `gh pr review 123 -c "articles/example.md:42:【おかしな重なり】パフォーマンスのパフォーマンス→パフォーマンス" -c "articles/example.md:56:【一文が長すぎる】115文字あります..." -b "レビュー完了"`
+            **重要: GitHub API を使ってインラインコメントを投稿してください**
 
-            2. **観点の明記**: 各インラインコメントの冒頭に、該当するチェック項目を【】で明記してください
-               - 例: 【おかしな重なり】【一文が長すぎる】【前提知識が不明確】【並列の乱れ】【根拠のない主張】など
+            1. **diffの取得と解析**:
+               - `gh pr diff <PR番号>` でdiffを取得
+               - 各ファイルの変更箇所(hunk)と行番号を把握
 
-            3. **総括コメント**: レビュー全体のサマリーは、上記の`gh pr review`の`-b`オプションで簡潔に記述するか、別途`gh pr comment`で投稿してください
+            2. **インラインコメントの投稿**:
+               GitHub API を使用してインラインコメントを投稿します:
+               ```bash
+               gh api repos/$REPO/pulls/<PR番号>/reviews \
+                 -F commit_id="<最新のcommit ID>" \
+                 -F event="COMMENT" \
+                 -F body="レビュー完了しました" \
+                 -F comments='[
+                   {"path":"articles/example.md","position":5,"body":"【おかしな重なり】パフォーマンスのパフォーマンス→パフォーマンス"},
+                   {"path":"articles/example.md","position":12,"body":"【一文が長すぎる】115文字あります..."}
+                 ]'
+               ```
 
-            **注意**: インラインコメントは必ず`gh pr review`を使い、通常のコメント（`gh pr comment`）は使わないでください
+            3. **position の計算方法**:
+               - `position` はファイルの行番号ではなく、**diffでの位置**です
+               - diffの "@@ ... @@" ヘッダーから数えた行数を指定
+               - 変更行(+で始まる行)にのみコメント可能
+
+            4. **観点の明記**: 各コメントの冒頭に、該当するチェック項目を【】で明記
+               - 例: 【おかしな重なり】【一文が長すぎる】【前提知識が不明確】【並列の乱れ】【根拠のない主張】
 
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://docs.claude.com/en/docs/claude-code/cli-reference for available options
-          # Allow gh commands needed for reviewing PRs
-          claude_args: '--allowedTools "Bash(gh pr view:*)" "Bash(gh pr diff:*)" "Bash(gh pr review:*)"'
+          # Allow gh commands needed for reviewing PRs (including API calls for inline comments)
+          claude_args: '--allowedTools "Bash(gh pr view:*)" "Bash(gh pr diff:*)" "Bash(gh api:*)"'
 
