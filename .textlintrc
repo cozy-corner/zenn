@@ -3,7 +3,7 @@
   "rules": {
     "preset-ja-technical-writing": {
       "sentence-length": {
-        "max": 120
+        "max": 80
       },
       "max-kanji-continuous-len": {
         "max": 6,
@@ -13,7 +13,19 @@
         "preferInHeader": "",
         "preferInBody": "ですます",
         "preferInList": "である"
-      }
+      },
+      "ja-no-weak-phrase": true,
+      "ja-no-redundant-expression": true,
+      "ja-unnatural-alphabet": true,
+      "no-doubled-joshi": true,
+      "no-doubled-conjunction": true,
+      "no-double-negative-ja": true,
+      "no-dropping-the-ra": true,
+      "no-doubled-conjunctive-particle-ga": true,
+      "ja-no-successive-word": true,
+      "ja-no-abusage": true,
+      "arabic-kanji-numbers": true,
+      "no-invalid-control-character": true
     },
     "preset-ja-spacing": {
       "ja-space-between-half-and-full-width": {
