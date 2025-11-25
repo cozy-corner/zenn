@@ -1,6 +1,7 @@
 {
   "filters": {},
   "rules": {
+    "@textlint-ja/preset-ai-writing": true,
     "preset-ja-technical-writing": {
       "sentence-length": {
         "max": 80
@@ -25,7 +26,8 @@
       "ja-no-successive-word": true,
       "ja-no-abusage": true,
       "arabic-kanji-numbers": true,
-      "no-invalid-control-character": true
+      "no-invalid-control-character": true,
+      "no-exclamation-question-mark": true
     },
     "preset-ja-spacing": {
       "ja-space-between-half-and-full-width": {
