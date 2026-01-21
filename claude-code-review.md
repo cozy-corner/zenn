@@ -10,9 +10,11 @@
 
 **対応済み**: 日経新聞の記事へのリンクを追加し、「これまで」と表現を修正しました。
 
-## articles/y-junction-2way-feature.md#L25
+## ❌ articles/y-junction-2way-feature.md#L25
 
 【1段落1テーマ】この段落で3つの異なる内容（OpenStreetMapでの表現、従来の検出方法、検出されなかった理由）が混在しています。段落を分割し、各段落を1つのテーマに絞ることをお勧めします。
+
+**対応不要**: 「そのため」で因果関係が明確につながっており、1段落にまとまっていても自然に読める。過去記事のカジュアルなスタイルとも整合している。
 
 ## ✅ articles/y-junction-2way-feature.md#L31
 
@@ -20,9 +22,11 @@
 
 **対応済み**: L31で「道路は複数の地点（ノード）をつないだ線（Way）として記録されています」と修正し、ノードとWayの両方を自然に説明しました。
 
-## articles/y-junction-2way-feature.md#L44
+## ❌ articles/y-junction-2way-feature.md#L44
 
 【適切な例の提示】コード例は具体的で良いですが、実際のWay IDとノードIDを示しているため、読者がOpenStreetMapで確認できるよう、「このデータはOpenStreetMapで確認できます: https://www.openstreetmap.org/node/1522928021」などのリンクを追加すると、より実践的になります。
+
+**対応不要**: 抽象的な番号（Way 1, Way 2, ノード1-4）に変更したため、OpenStreetMapリンクは不要になりました。
 
 ## ✅ articles/y-junction-2way-feature.md#L92
 
@@ -36,9 +40,11 @@
 
 **対応済み**: L117の「ベクトル」を「方位角」に変更し、第1回の記事と同じ用語に統一しました。また、方位角から角度を計算する流れを明確化しました。
 
-## articles/y-junction-2way-feature.md#L113
+## ❌ articles/y-junction-2way-feature.md#L113
 
 【読者との対話】「構造的条件」という見出しの下で、読者が「なぜこれらの条件が必要なのか」を理解できるよう、各条件の意図を説明すると良いでしょう。例えば、「両方の道路が対象となる道路種別」という条件は、「私道や建物内通路などを除外するため」といった理由を添えると理解が深まります。
+
+**対応不要**: 実装上は「両方がvalid highway type + 少なくとも1本がcore highway type」だが、この技術的詳細を記事に書くと読みにくくなる。現状の表現で十分。
 
 ## ✅ articles/y-junction-2way-feature.md#L123
 
