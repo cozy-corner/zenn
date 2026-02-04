@@ -8,9 +8,7 @@ published: false
 
 ## はじめに
 
-正規化されたテーブル構造において、複数テーブルにまたがる検索を実装する際、パフォーマンスの最適化が課題になることがあります。
-
-例えば、書籍検索システムで「著者名、書籍タイトル、出版社名」を統合的に検索する場合を考えます。直感的には`OR`条件で実装しますが、データ量が増えるとパフォーマンスが問題になることがあります。
+図書館でよくある書籍検索システムで「著者名、書籍タイトル、出版社名」を統合的に検索する場合を考えます。直感的には`OR`条件で実装しますが、データ量が増えるとパフォーマンスが問題になることがあります。
 
 本記事では、PostgreSQL 17環境で以下の2つのアプローチを実測データで比較します。
 
@@ -24,11 +22,11 @@ published: false
 ### PostgreSQL環境
 
 - PostgreSQL 17
-- Docker環境（再現可能）
+- Docker環境
 
 ### テーブル構造
 
-典型的な図書館システムの正規化されたテーブル構造を使用します。
+典型的な図書館システムにありそうな正規化されたテーブル構造を使用します。
 
 ```sql
 -- 出版社テーブル
@@ -86,7 +84,8 @@ erDiagram
 
 ### パターン1: OR条件 + DISTINCT
 
-多くの開発者が最初に書く実装です。
+最も素直な実装です。
+私も特にレイテンシの目標などがなければ、まずはこう書きます。
 
 ```sql
 SELECT DISTINCT b.book_id, b.title
@@ -110,8 +109,8 @@ WHERE
 SELECT DISTINCT * FROM (
   SELECT b.book_id, b.title
   FROM books b
-  JOIN book_authors ba ON b.book_id = ba.book_id
-  JOIN authors a ON ba.author_id = a.author_id
+  LEFT JOIN book_authors ba ON b.book_id = ba.book_id
+  LEFT JOIN authors a ON ba.author_id = a.author_id
   WHERE a.name LIKE '%夏目%'
 
   UNION ALL
@@ -124,7 +123,7 @@ SELECT DISTINCT * FROM (
 
   SELECT b.book_id, b.title
   FROM books b
-  JOIN publishers p ON b.publisher_id = p.publisher_id
+  LEFT JOIN publishers p ON b.publisher_id = p.publisher_id
   WHERE p.name LIKE '%夏目%'
 ) sub;
 ```
