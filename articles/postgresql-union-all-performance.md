@@ -23,6 +23,7 @@ published: false
 
 - PostgreSQL 17
 - Docker環境
+- 検証コード：https://github.com/cozy-corner/or-vs-union-all
 
 ### テーブル構造
 
@@ -225,11 +226,6 @@ Execution Time: 18.2 ms
 - 各サブクエリが独立して最適化
 - Nested Loop + Index Scanを活用
 - 最後に1回だけ重複除去
-
-## 再現環境
-
-本検証環境はGitHubで公開しています：
-https://github.com/cozy-corner/or-vs-union-all
 
 ## いつこの手法を使うべきか
 
