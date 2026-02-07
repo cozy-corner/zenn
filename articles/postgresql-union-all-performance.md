@@ -12,10 +12,10 @@ published: false
 
 本記事では、PostgreSQL 17環境で以下の2つのアプローチを実測データで比較します。
 
-- OR条件 + DISTINCT: 71.2 ms
-- UNION ALL + DISTINCT: 20.1 ms（3.5倍高速）
+- OR条件 + DISTINCT: 74.1 ms
+- UNION ALL + DISTINCT: 18.2 ms（実行時間約1/4）
 
-実行計画（EXPLAIN ANALYZE）の比較を通じて、なぜ`UNION ALL + DISTINCT`が高速なのかを解説します。
+実行計画（EXPLAIN ANALYZE）の比較を通じて、このケースで`UNION ALL + DISTINCT`が高速になった理由を解説します。
 
 ## 検証環境
 
@@ -85,32 +85,32 @@ erDiagram
 ### パターン1: OR条件 + DISTINCT
 
 最も素直な実装です。
-私も特にレイテンシの目標などがなければ、まずはこう書きます。
+私も小規模なシステムで特にレイテンシの目標などがなければ、まずはこう書きます。
 
 ```sql
 SELECT DISTINCT b.book_id, b.title
 FROM books b
-LEFT JOIN book_authors ba ON b.book_id = ba.book_id
-LEFT JOIN authors a ON ba.author_id = a.author_id
-LEFT JOIN publishers p ON b.publisher_id = p.publisher_id
+INNER JOIN book_authors ba ON b.book_id = ba.book_id
+INNER JOIN authors a ON ba.author_id = a.author_id
+INNER JOIN publishers p ON b.publisher_id = p.publisher_id
 WHERE
   a.name LIKE '%夏目%' OR
   b.title LIKE '%夏目%' OR
   p.name LIKE '%夏目%';
 ```
 
-実行時間: 71.2 ms
+実行時間: 74.1 ms
 
 ### パターン2: UNION ALL + DISTINCT
 
-各検索条件を独立したクエリに分割し、`UNION ALL`で結合後、最後に重複除去を行います。
+次に、各検索条件を独立したクエリに分割し、`UNION ALL`で結合後、最後に重複除去を行います。
 
 ```sql
 SELECT DISTINCT * FROM (
   SELECT b.book_id, b.title
   FROM books b
-  LEFT JOIN book_authors ba ON b.book_id = ba.book_id
-  LEFT JOIN authors a ON ba.author_id = a.author_id
+  INNER JOIN book_authors ba ON b.book_id = ba.book_id
+  INNER JOIN authors a ON ba.author_id = a.author_id
   WHERE a.name LIKE '%夏目%'
 
   UNION ALL
@@ -123,22 +123,20 @@ SELECT DISTINCT * FROM (
 
   SELECT b.book_id, b.title
   FROM books b
-  LEFT JOIN publishers p ON b.publisher_id = p.publisher_id
+  INNER JOIN publishers p ON b.publisher_id = p.publisher_id
   WHERE p.name LIKE '%夏目%'
 ) sub;
 ```
 
-実行時間: 20.1 ms（3.5倍高速）
+実行時間: 18.2 ms（実行時間約1/4）
 
 ## 実測結果
 
-| パターン | 実行時間 | 高速化率 | 返却行数 |
+| パターン | 実行時間 | 相対時間 | 返却行数 |
 |---------|---------|---------|---------|
-| OR条件 + DISTINCT | 71.2 ms | - | 11,500 |
-| UNION ALL + DISTINCT | 20.1 ms | **3.5倍** | 11,500 |
-| (参考) UNION | 28.9 ms | 2.5倍 | 11,500 |
-
-※`UNION`は各段階で重複除去を行うため、`UNION ALL`より遅くなります。
+| OR条件 + DISTINCT | 74.1 ms | - | 11,500 |
+| UNION ALL + DISTINCT | 18.2 ms | **約1/4** | 11,500 |
+| (参考) UNION | 26.3 ms | 約1/3 | 11,500 |
 
 ## なぜUNION ALL + DISTINCTが高速なのか
 
@@ -154,7 +152,7 @@ OR条件では、すべてのテーブルを結合してから条件でフィル
 ### 2. JOIN戦略の違い
 
 **OR条件:**
-- すべてのテーブルを`LEFT JOIN`する必要がある
+- すべてのテーブルをJOINする必要がある
 - 著者だけで検索する場合も、出版社テーブルまで結合する（無駄）
 
 **UNION ALL + DISTINCT:**
@@ -168,44 +166,65 @@ OR条件では、すべてのテーブルを結合してから条件でフィル
 
 **UNION ALL + DISTINCT:**
 - すべて結合してから最後に1回だけ重複除去
-- ※単なる`UNION`は各UNION操作ごとに重複チェック（オーバーヘッド）
 
-### 4. 並列実行（最重要）
+### 4. 並列実行
 
 `UNION ALL + DISTINCT`では**Parallel Append**（並列実行）が発動します。
 
-Parallel Append（並列実行）が発動し、複数のサブクエリを並列に実行できるため、これが最速化の決定的要因となります。
+Parallel Append（並列実行）が発動し、複数のサブクエリを並列に実行できるため、これが最速化の主な要因となります。
 
 ## 実行計画の比較
 
 ### パターン1: OR条件 + DISTINCT
 
 ```
-HashAggregate (rows=11500)
-  Filter: Rows Removed by Filter: 88500  ← 88%を除外
-  -> Seq Scan (100,000行を処理)
-Execution Time: 71.2 ms
+HashAggregate (actual time=70.0..70.9ms rows=11500)
+  -> Hash Join (publisher_id)
+       Join Filter: (著者 OR タイトル OR 出版社) にマッチ
+       Rows Removed by Filter: 88500  ← 88%を除外
+       -> Hash Join (author_id)
+            -> Hash Join (book_id)
+                 -> Seq Scan on book_authors (100,001行)
+                 -> Hash -> Seq Scan on books (100,000行)
+            -> Hash -> Seq Scan on authors (5,000行)
+       -> Hash -> Seq Scan on publishers (1,000行)
+
+Execution Time: 74.1 ms
 ```
 
-- 100,000行を処理してから88,500行を除外
+**特徴:**
+- すべてのテーブルをINNER JOINで結合
 - すべてSequential Scan
+- 100,000行を処理してから88,500行をフィルタで除外
+- 最後にHashAggregateで重複除去
 
 ### パターン2: UNION ALL + DISTINCT
 
 ```
-HashAggregate (rows=11500)
+HashAggregate (actual time=16.9..17.6ms rows=11500)
   -> Gather (並列実行)
-       Workers: 2
+       Workers Planned: 2
+       Workers Launched: 2
        -> Parallel Append
-            -> Hash Join (10,000行)
-            -> Seq Scan (500行)
-            -> Nested Loop + Index Scan (1,000行)
-Execution Time: 20.1 ms
+            -> Hash Join (出版社検索: 10,000行)
+                 -> Seq Scan on books
+                 -> Hash -> Seq Scan on publishers (100件ヒット)
+            -> Seq Scan on books (タイトル検索: 500行)
+            -> Nested Loop (著者検索: 1,001行)
+                 -> Nested Loop
+                      -> Seq Scan on authors (50件ヒット)
+                      -> Bitmap Heap Scan on book_authors
+                           -> Bitmap Index Scan
+                 -> Index Scan on books (books_pkey使用)
+
+Execution Time: 18.2 ms
 ```
 
-- **Parallel Append（並列実行）が発動**
-- 各サブクエリが独立最適化
-- Index Scanを活用
+**特徴:**
+- **並列実行（Parallel Append）が発動** - 2ワーカーで処理
+- 各サブクエリが独立して最適化
+- Nested Loop + Index Scanを活用
+- 最後に1回だけ重複除去
 
 ## 再現環境
 
@@ -216,22 +235,29 @@ https://github.com/cozy-corner/or-vs-union-all
 
 ### 有効なケース
 
-- 正規化されたテーブル構造で複数テーブルを結合
-- 各検索条件の選択性が高い（少数の行を返す）
-- 適切なインデックスが存在
-- 並列実行が可能な環境
+以下の条件を満たす場合、UNION ALL + DISTINCTが有効です：
+
+**1. 各検索条件の選択性が高い（少数の行を返す）**
+- OR条件は全体を処理してから大部分を除外（本記事：100,000行→11,500行）
+- 選択性が高いほど、この無駄が大きくなる
+
+**2. 並列実行が可能な環境**
+- Parallel Appendが発動することが最大の優位性
+- PostgreSQLで`max_parallel_workers_per_gather > 0`
 
 ### 向かないケース
 
-- 選択性が低い（大量の行を返す）
-- インデックスがない
-- テーブルが小さい
+**1. 選択性が低い（大量の行を返す）**
+- OR条件の無駄が少なくなり、性能差が縮まる
+
+**2. テーブルが小さい**
+- 並列実行のオーバーヘッドの方が大きくなる可能性がある
 
 まずOR条件で実装し、パフォーマンス問題が発生したら`EXPLAIN ANALYZE`で比較して選択することを推奨します。
 
 ## まとめ
 
-- UNION ALL + DISTINCTで3.5倍高速化を実現
-- 並列実行（Parallel Append）が決定的な要因
+- UNION ALL + DISTINCTで実行時間約1/4化を実現
+- 並列実行（Parallel Append）が主な要因
 - データ特性に応じた使い分けが必要
 - EXPLAIN ANALYZEでの実測確認が重要
