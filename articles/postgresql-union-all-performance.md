@@ -197,7 +197,7 @@ OR条件では、すべてのテーブルを結合してから条件でフィル
 HashAggregate (actual time=70.0..70.9ms rows=11500)
   -> Hash Join (publisher_id)
        Join Filter: (著者 OR タイトル OR 出版社) にマッチ
-       Rows Removed by Filter: 88500  ← 88%を除外
+       Rows Removed by Join Filter: 88500  ← 88%を除外
        -> Hash Join (author_id)
             -> Hash Join (book_id)
                  -> Seq Scan on book_authors (100,001行)
