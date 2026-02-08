@@ -32,8 +32,12 @@ WHERE author.name LIKE '%夏目%' OR
 
 ### PostgreSQL環境
 
-- PostgreSQL 17
-- Docker環境
+- PostgreSQL 17（Docker）
+- ホストマシン: Apple M1 Pro（8コア）、メモリ32GB
+- PostgreSQL設定:
+  - `shared_buffers`: 256MB
+  - `work_mem`: 16MB
+  - `max_parallel_workers_per_gather`: 2（デフォルト）
 - 検証コード：https://github.com/cozy-corner/or-vs-union-all
 
 ### テーブル構造
