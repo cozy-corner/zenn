@@ -29,11 +29,6 @@
       "no-invalid-control-character": true,
       "no-exclamation-question-mark": true
     },
-    "preset-ja-spacing": {
-      "ja-space-between-half-and-full-width": {
-        "space": "always"
-      }
-    },
     "prh": {
       "rulePaths": ["./.prhrc.yml"]
     },
