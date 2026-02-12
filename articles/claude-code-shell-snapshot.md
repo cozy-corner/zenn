@@ -125,6 +125,32 @@ export PATH='/Users/...'
 
 Claude Codeは、以下の2段階で環境を再現しています。
 
+```mermaid
+sequenceDiagram
+    participant User as ユーザー
+    participant CC as Claude Code
+    participant Shell as zsh
+    participant RC as .zshrc
+    participant Snap as スナップショット
+
+    Note over User,Snap: セッション起動時（1回のみ）
+    User->>CC: セッション開始
+    CC->>Shell: zsh -l -c "スクリプト"
+    Shell->>Shell: .zshenv → .zprofile 読み込み
+    Shell->>RC: source ~/.zshrc
+    RC-->>Shell: 関数・エイリアス
+    Shell->>Snap: 保存
+
+    Note over User,Snap: 各コマンド実行時（毎回）
+    User->>CC: コマンド実行
+    CC->>Shell: zsh -l -c "..."
+    Shell->>Shell: .zshenv → .zprofile 読み込み
+    Shell->>Snap: source スナップショット
+    Snap-->>Shell: 関数・エイリアス復元
+    Shell->>Shell: ユーザーコマンド実行
+    Shell-->>User: 結果
+```
+
 ### 1. セッション起動時（1回のみ）
 
 1. `zsh -l -c "スナップショット作成スクリプト"` を実行
