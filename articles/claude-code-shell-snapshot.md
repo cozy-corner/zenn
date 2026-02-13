@@ -250,7 +250,7 @@ zsh -l -c "source ~/.claude/shell-snapshots/snapshot-zsh-*.sh; <ユーザーコ�
 ```
 
 実行の流れ：
-1. zsh起動（非インタラクティブ、`-l`フラグ付き）
+1. zshを起動（非インタラクティブ、`-l`フラグ付き）
 2. `.zshenv`、`.zprofile` を読み込む
 3. `source ~/.claude/shell-snapshots/snapshot-zsh-*.sh` でスナップショットを復元
 4. ユーザーのコマンドを実行
