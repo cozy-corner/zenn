@@ -124,7 +124,7 @@ export PATH='/Users/...'
 
 ## 仕組みの全体像
 
-Claude Codeは、以下の2段階で環境を再現しています。
+Claude Codeは、セッション起動時の環境キャプチャと各コマンド実行時の環境復元という2段階で環境を再現しています。
 
 ```mermaid
 sequenceDiagram
