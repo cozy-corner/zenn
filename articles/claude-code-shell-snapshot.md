@@ -264,7 +264,7 @@ zsh -l -c "source ~/.claude/shell-snapshots/snapshot-zsh-*.sh; <ユーザーコ�
 
 ### 直接実行との違い
 
-```bash
+```
 # 直接実行（./script.sh）
 ┌─────────────┐
 │ 親シェル    │
