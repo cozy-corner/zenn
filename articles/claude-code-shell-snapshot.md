@@ -68,14 +68,16 @@ $ ./test.sh
 実際にClaude Code内で確認してみます。
 
 ```bash
-!echo $-
-569Xl  # 'i' がない → 非インタラクティブ
+! echo $-
+  ⎿  569Xl  # 'i' がない → 非インタラクティブ
 
-!alias ll
-ll='eza -la --icons'  # それなのにエイリアスがある！
+! alias gs
+  ⎿  gs='git status'  # それなのにエイリアスがある！
 
-!ll
-# → 動作する
+! gs
+  ⎿  On branch main
+     Your branch is up to date with 'origin/main'.
+     ...  # → 動作する
 ```
 
 非インタラクティブなのにエイリアスが使える。どうやって実現しているのでしょうか？
