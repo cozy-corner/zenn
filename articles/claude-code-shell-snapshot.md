@@ -1,5 +1,5 @@
 ---
-title: "Claude Codeが非インタラクティブシェルでエイリアスを使える仕組み"
+title: "Claude Code 上のコマンドでエイリアスを使える仕組み"
 emoji: "🐚"
 type: "tech"
 topics: ["shell", "zsh", "claudecode", "cli"]
