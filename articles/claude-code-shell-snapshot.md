@@ -2,8 +2,8 @@
 title: "Claude Code 上のコマンドでエイリアスを使える仕組み"
 emoji: "📸"
 type: "tech"
-topics: ["shell", "zsh", "claudecode", "cli"]
-published: false
+topics: ["shell", "zsh", "claudecode", "claude", "cli"]
+published: true
 ---
 
 ## はじめに
