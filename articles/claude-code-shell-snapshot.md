@@ -68,13 +68,13 @@ $ ./test.sh
 実際にClaude Code内で確認してみます。
 
 ```bash
-$ echo $-
+!echo $-
 569Xl  # 'i' がない → 非インタラクティブ
 
-$ alias ll
+!alias ll
 ll='eza -la --icons'  # それなのにエイリアスがある！
 
-$ ll
+!ll
 # → 動作する
 ```
 
